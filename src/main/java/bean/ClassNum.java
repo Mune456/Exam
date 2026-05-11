@@ -14,6 +14,8 @@ public class ClassNum implements Serializable {
 	 */
 	private School school;
 
+	
+	
 
 	/**
 	 * ゲッター・セッター
