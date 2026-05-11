@@ -16,6 +16,7 @@ public class ClassNum implements Serializable {
 
 	
 	
+	
 
 	/**
 	 * ゲッター・セッター
