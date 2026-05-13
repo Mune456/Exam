@@ -41,7 +41,7 @@ public class TestListStudentExecuteAction extends Action {
 	        count = Integer.parseInt(countStr);
 	    }
 
-	    // DAO 呼び出し
+	    // DAO呼び出し
 	    TestListStudentDao dao = new TestListStudentDao();
 	    Student student = new Student();
 	    student.setSchool(school);

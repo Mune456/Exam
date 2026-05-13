@@ -59,6 +59,14 @@ public class TestRegistExecuteAction extends Action {
 	    	
 	    }
 	    
+		if (!errors.isEmpty()) {
+		    req.setAttribute("errors", errors);
+		    req.setAttribute("entYear", entYearStr);
+		    req.setAttribute("classNum", classNum);
+		    req.setAttribute("no", noStr);
+		    req.getRequestDispatcher("test_regist.jsp").forward(req, res);
+		    return;
+		}
 	    // DAO 呼び出し
 	    StudentDao studentDao = new StudentDao();
 //	    SubjectDao subjectDao = new SubjectDao();

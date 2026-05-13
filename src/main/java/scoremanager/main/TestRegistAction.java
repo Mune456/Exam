@@ -56,7 +56,7 @@ public class TestRegistAction extends Action {
         	studentlist = studentDao.filter(school, entYear, classNum, false);
         }
         
-        // JSP へ渡す
+        // JSPへ渡す
         req.setAttribute("ent_year_set", entYearSet);
         req.setAttribute("class_num_set", classNumSet);
 //        req.setAttribute("subject_list", subjectList);

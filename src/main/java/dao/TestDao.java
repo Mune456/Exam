@@ -62,8 +62,6 @@ public class TestDao extends Dao {
     }
     
     
-    
-    
     private List<Test> postFilter(ResultSet rSet, School school) throws Exception {
         
     	List<Test> list = new ArrayList<>();
@@ -91,8 +89,6 @@ public class TestDao extends Dao {
 
         return list;
     }
-    
-    
     
     
     public List<Test> filter(int entYear,String classNum, Subject subject, int num, School school) throws Exception{
@@ -140,8 +136,6 @@ public class TestDao extends Dao {
         }
     
     
-    
-    
     public boolean save(List<Test> list) throws Exception{
     	
     	Connection connection = getConnection();
@@ -168,8 +162,6 @@ public class TestDao extends Dao {
 
         return result;
     }
-    
-    
     
     
     private boolean save(Test test, Connection connection) throws Exception {

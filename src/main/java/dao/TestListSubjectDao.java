@@ -22,7 +22,6 @@ public class TestListSubjectDao extends Dao {
 		
 		List<TestListSubject> list = new ArrayList<>();
 		
-		
 		try {
 			while (rSet.next()) {
 				TestListSubject testListSubject = new TestListSubject();

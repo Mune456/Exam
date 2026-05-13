@@ -24,8 +24,8 @@ public class TestListAction extends Action {
         LocalDate todaysDate = LocalDate.now();
         int year = todaysDate.getYear();
 
-        List<Integer> entYearSet = new ArrayList<>();   // 入学年度リスト
-        List<String> classNumSet = null;                // クラス番号リスト
+        List<Integer> entYearSet = new ArrayList<>();
+        List<String> classNumSet = null;
 
         ClassNumDao classNumDao = new ClassNumDao();
 
