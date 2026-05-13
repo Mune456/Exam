@@ -46,6 +46,9 @@ public class TestListStudentDao extends Dao {
 		}catch (Exception e) {
 			throw e;
 		} finally {
+			if (resultSet != null) {
+			        resultSet.close();
+			    }
 			// プリペアードステートメントを閉じる
 			if (statement != null) {
 				try {

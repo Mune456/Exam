@@ -15,7 +15,7 @@ import bean.Test;
 
 public class TestDao extends Dao {
 
-	private String baseSql = "select * from test where student_no = ? and subject_cd = ? and no = ? and school_cd = ?";
+	private String baseSql = "select * from test where student_no = ? and subject_cd = ? and school_cd = ? and no = ?";
 	
     public Test get(Student student,Subject subject, School school,int no) throws Exception {
     	

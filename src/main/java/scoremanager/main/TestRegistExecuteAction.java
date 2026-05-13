@@ -47,7 +47,7 @@ public class TestRegistExecuteAction extends Action {
 	        errors.put("subject", "科目を選択してください");
 	    }
 	    if (noStr == null || noStr.isEmpty()) {
-	        errors.put("noStr", "回数を選択してください");
+	        errors.put("no", "回数を選択してください");
 	    }
 	    
 	    int entYear = 0;
