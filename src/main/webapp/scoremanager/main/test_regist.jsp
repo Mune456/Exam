@@ -41,7 +41,7 @@
 							<select class="form-select" id="f3-subject-select" name="subject">
 								<option value="0">--------</option>
 								<c:forEach var="subject" items="${subject_list }">
-									<%-- 現在のsubjectと選択されていたf2が一致していた場合selectedを追記 --%>
+									<%-- 現在のsubjectと選択されていたf3が一致していた場合selectedを追記 --%>
 									<option value="${subject.cd }" <c:if test="${subject.cd == subject }">selected</c:if>>${subject.name }</option>
 								</c:forEach>
 							</select>
@@ -51,7 +51,7 @@
 							<select class="form-select" id="f4-count-select" name="no">
 								<option value="0">--------</option>
 								<c:forEach var="cnt" items="${count_list }">
-									<%-- 現在のcntと選択されていたf2が一致していた場合selectedを追記 --%>
+									<%-- 現在のcntと選択されていたf4が一致していた場合selectedを追記 --%>
 									<option value="${cnt }" <c:if test="${cnt == no }">selected</c:if>>${cnt }</option>
 								</c:forEach>
 							</select>

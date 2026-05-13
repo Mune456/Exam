@@ -17,7 +17,7 @@
                 成績参照
             </h2>
             
-            <%-- 科目情報検索 --%>
+            <%-- 科目情報検索  --%>
             <form method="get" action="TestListStudentExecute.action">
 
                 <div class="row border mx-3 mb-3 py-2 align-items-center rounded" id="filter">

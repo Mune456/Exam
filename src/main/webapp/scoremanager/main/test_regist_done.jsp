@@ -13,17 +13,17 @@
     <c:param name="content">
         <section class="me-4">
 
-            <!-- ① 見出し -->
+            <!-- ①見出し -->
             <h2 class="h3 mb-3 fw-norma bg-secondary bg-opacity-10 py-2 px-4">
                 成績管理
             </h2>
 
-            <!-- ② 登録完了メッセージ -->
+            <!-- ②登録完了メッセージ -->
             <div class="alert alert-success mx-3">
                 登録が完了しました
             </div>
 
-            <!-- ③④ リンク -->
+            <!-- ③④リンク -->
             <div class="mx-3 mt-3">
 
                 <!-- 戻る -->
