@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <ul class="nav nav-pills flex-column mb-auto px-4">
 	<li class="nav-item my-3">
 		<a href="/exam/scoremanager/main/Menu.action">メニュー</a>
