@@ -42,6 +42,7 @@ public class TestRegistAction extends Action {
         List<String> classNumSet = classNumDao.filter(school);
 //        List<Subject> subjectList = subjectDao.filter(school);
         
+        
         //リクエストパラメーターの取得
         String entYearStr = req.getParameter("entYear");
         String classNum = req.getParameter("classNum");
@@ -63,6 +64,13 @@ public class TestRegistAction extends Action {
         req.setAttribute("student_list", studentlist);
         req.setAttribute("no", noStr);
 
+
+        List<Integer> countList = new ArrayList<>();
+        for(int i = 1; i <= 100; i++) {
+        	countList.add(i);
+        }
+        req.setAttribute("count_list",countList);
+        
         // フォワード
         req.getRequestDispatcher("test_regist.jsp").forward(req, res);
     }

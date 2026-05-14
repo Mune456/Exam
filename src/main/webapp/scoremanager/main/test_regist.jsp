@@ -19,17 +19,17 @@
 						<div class="col-2">
 							<label class="form-label" for="f1-in-select">入学年度</label>
 							<select class="form-select" id="f1-in-select" name="entYear">
-								<option value="0">--------</option>
+								<option value="">--------</option>
 								<c:forEach var="year" items="${ent_year_set }">
 									<%-- 現在のyearと選択されていたf1が一致していた場合selectedを追記 --%>
-									<option value="${year }" <c:if test="${year == f1 }">selected</c:if>>${year }</option>
+									<option value="${year }" <c:if test="${year == entYear }">selected</c:if>>${year }</option>
 								</c:forEach>
 							</select>
 						</div>
 						<div class="col-2">
 							<label class="form-label" for="f2-class-select">クラス</label>
 							<select class="form-select" id="f2-class-select" name="classNum">
-								<option value="0">--------</option>
+								<option value="">--------</option>
 								<c:forEach var="num" items="${class_num_set }">
 									<%-- 現在のnumと選択されていたf2が一致していた場合selectedを追記 --%>
 									<option value="${num }" <c:if test="${num == classNum }">selected</c:if>>${num }</option>
@@ -39,17 +39,17 @@
 						<div class="col-4">
 							<label class="form-label" for="f3-subject-select">科目</label>
 							<select class="form-select" id="f3-subject-select" name="subject">
-								<option value="0">--------</option>
+								<option value="">--------</option>
 								<c:forEach var="subject" items="${subject_list }">
 									<%-- 現在のsubjectと選択されていたf3が一致していた場合selectedを追記 --%>
-									<option value="${subject.cd }" <c:if test="${subject.cd == subject }">selected</c:if>>${subject.name }</option>
+									<option value="${subject.cd }" <c:if test="${subject.cd == subjectCd}">selected</c:if>>${subject.name }</option>
 								</c:forEach>
 							</select>
 						</div>
 						<div class="col-2">
 							<label class="form-label" for="f4-count-select">回数</label>
 							<select class="form-select" id="f4-count-select" name="no">
-								<option value="0">--------</option>
+								<option value="">--------</option>
 								<c:forEach var="cnt" items="${count_list }">
 									<%-- 現在のcntと選択されていたf4が一致していた場合selectedを追記 --%>
 									<option value="${cnt }" <c:if test="${cnt == no }">selected</c:if>>${cnt }</option>
@@ -59,7 +59,7 @@
 						<div class="col-2 text-center">
 							<button class="btn btn-secondary" id="filter-button">検索</button>
 						</div>
-						<div class="mt-2 text-warning">${errors.get("f1") }</div>
+						<div class="mt-2 text-warning">${errors.entYear} ${errors.classNum} ${errors.no}</div>
 					</div>
 				</form>
 
