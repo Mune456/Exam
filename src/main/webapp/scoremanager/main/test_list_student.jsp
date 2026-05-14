@@ -1,92 +1,81 @@
-<%-- 成績一覧JSP（検索後ページ） --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8" %>
+    pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 
 <c:import url="/common/base.jsp">
-    <c:param name="title">
-        得点管理システム
-    </c:param>
+<c:param name="title">得点管理システム</c:param>
 
-    <c:param name="scripts"></c:param>
+<c:param name="content">
+<section class="me-4">
 
-    <c:param name="content">
-        <section class="me-4">
+<h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
+    成績管理
+</h2>
 
-            <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
-                成績管理
-            </h2>
+<!-- ① 科目表示 -->
+<div class="px-4 mb-3">
+    科目：${subject}（${count}回）
+</div>
 
-            <!-- 検索条件表示 -->
-            <div class="px-4 mb-3">
-                入学年度：
-                <c:choose>
-                    <c:when test="${entYear != 0}">
-                        ${entYear}
-                    </c:when>
-                    <c:otherwise>指定なし</c:otherwise>
-                </c:choose>
-                ／ クラス：
-                <c:choose>
-                    <c:when test="${not empty classNum}">
-                        ${classNum}
-                    </c:when>
-                    <c:otherwise>指定なし</c:otherwise>
-                </c:choose>
-                ／ 科目：
-                <c:choose>
-                    <c:when test="${not empty subjectCd}">
-                        ${subjectCd}
-                    </c:when>
-                    <c:otherwise>指定なし</c:otherwise>
-                </c:choose>
-                ／ 回数：
-                <c:choose>
-                    <c:when test="${count != 0}">
-                        ${count}
-                    </c:when>
-                    <c:otherwise>指定なし</c:otherwise>
-                </c:choose>
-            </div>
+<!-- フォーム -->
+<form action="TestRegistExecute.action" method="post">
 
-            <!-- 件数表示 -->
-            <div class="px-4 mb-2">
-                検索結果：${list.size()}件
-            </div>
+<!-- ② テーブル -->
+<table class="table table-hover mx-4">
 
-            <!-- 成績一覧 -->
-            <c:choose>
-                <c:when test="${list.size() > 0}">
-                    <table class="table table-hover mx-4">
-                        <thead>
-                            <tr>
-                                <th>回数</th>
-                                <th>点数</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="t" items="${list}">
-                                <tr>
-                                    <td>${t.num}</td>
-                                    <td>${t.point}</td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </c:when>
+    <!-- ヘッダー -->
+    <thead>
+        <tr>
+            <th>入学年度</th>
+            <th>クラス</th>
+            <th>学生番号</th>
+            <th>氏名</th>
+            <th>点数</th>
+        </tr>
+    </thead>
 
-                <c:otherwise>
-                    <div class="px-4">
-                        成績情報が存在しませんでした
-                    </div>
-                </c:otherwise>
-            </c:choose>
+    <!-- データ -->
+    <tbody>
+        <c:forEach var="test" items="${test_list_student}">
+            <tr>
+                <!-- 入学年度 -->
+                <td>${test.entYear}</td>
 
-            <!-- 戻る -->
-            <div class="px-4 mt-3">
-                <a href="TestList.action">戻る</a>
-            </div>
+                <!-- クラス -->
+                <td>${test.classNum}</td>
 
-        </section>
-    </c:param>
+                <!-- 学生番号 -->
+                <td>${test.studentNo}</td>
+
+                <!-- 氏名 -->
+                <td>${test.studentName}</td>
+
+                <!-- 点数 -->
+                <td>
+                    <input type="text"
+                        name="point_${test.studentNo}"
+                        value="${test.point}">
+                </td>
+            </tr>
+
+            <!-- hidden（学生番号）-->
+            <input type="hidden" name="regist" value="${test.studentNo}">
+        </c:forEach>
+    </tbody>
+
+</table>
+
+<!-- hidden -->
+<input type="hidden" name="count" value="${count}">
+<input type="hidden" name="subject" value="${subject}">
+
+<!-- 登録ボタン -->
+<div class="px-4 mt-3">
+    <input type="submit" value="登録して終了" class="btn btn-secondary">
+</div>
+
+</form>
+
+</section>
+</c:param>
 </c:import>
