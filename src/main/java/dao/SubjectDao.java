@@ -1,131 +1,141 @@
 package dao;
-
+ 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import bean.School;
 import bean.Subject;
-
-
+ 
 public class SubjectDao extends Dao {
  
-	public Subject get(String cd, School school) throws Exception {
-
-		Subject subject = new Subject();
-		Connection connection = getConnection();
-		PreparedStatement statement = null;
  
-		try {
-			statement = connection.prepareStatement("select * from subject where cd = ? and school_cd = ?");
-			statement.setString(1, cd);
-			statement.setString(2, school.getCd());
-			ResultSet rSet = statement.executeQuery();
+    public Subject get(String cd, School school) throws Exception {
+ 
+        Subject subject = null;
+ 
+        Connection con = getConnection();
+ 
+        String sql =
+ 
+            "SELECT * FROM subject WHERE cd = ? AND school_cd = ?";
+ 
+        PreparedStatement st = con.prepareStatement(sql);
+ 
+        st.setString(1, cd);
+ 
+        st.setString(2, school.getCd());
+ 
+        ResultSet rs = st.executeQuery();
+ 
+        if (rs.next()) {
+ 
+            subject = new Subject();
+ 
+            subject.setCd(rs.getString("cd"));
+ 
+            subject.setName(rs.getString("name"));
+ 
+            subject.setSchool(school);
+ 
+        }
+ 
+        st.close();
+ 
+        con.close();
+ 
+        return subject;
+ 
+    }
+ 
+    
 
-			if (rSet.next()) {
-				subject.setCd(rSet.getString("cd"));
-				subject.setName(rSet.getString("name"));
-				subject.setSchool(school);
-			} else {
-				subject = null;
-			}
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			if (statement != null)
-				statement.close();
-			}
-			if (connection != null){
-				connection.close();
-			}
-		return subject;
-	}
-
-
-	public List<Subject> filter(School school) throws Exception {
-		List<Subject> list = new ArrayList<>();
-		Connection connection = getConnection();
-		PreparedStatement statement = null;
-
-		try {
-			statement = connection.prepareStatement("select class_num from class_num where school_cd=? order by class_num");
-			statement.setString(1, school.getCd());
-			ResultSet rSet = statement.executeQuery();
-			while (rSet.next()) {
-				Subject subject = new Subject();
-				subject.setCd(rSet.getString("cd"));
-				subject.setName(rSet.getString("name"));
-				subject.setSchool(school);
-				list.add(subject);
-			}
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			if (statement != null) {
-				statement.close();
-			}
-			if (connection != null) {
-				connection.close();
-			}
-		}
-		return list;
-	}
-	public boolean save(Subject subject) throws Exception {
-		Connection connection = getConnection();
-		PreparedStatement statement = null;
-		int count = 0;
-		try {
-			statement = connection.prepareStatement("insert into subject(cd, name, school_cd) values(?, ?, ?)");
-			statement.setString(1, subject.getCd());
-			statement.setString(2, subject.getName());
-			statement.setString(3, subject.getSchool().getCd());
-			count = statement.executeUpdate();
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			if (statement != null) {
-				try {
-					statement.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-		}
-		if (count > 0) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	public boolean delete(Subject subject) throws Exception {
-		Connection connection = getConnection();
-		PreparedStatement statement = null;
-		int count = 0;
-		try {
-			statement = connection.prepareStatement("delete from subject where cd = ? and school_cd = ?");
-			statement.setString(1, subject.getCd());
-			statement.setString(2, subject.getSchool().getCd());
-			count = statement.executeUpdate();
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			if (statement != null) {
-				statement.close();
-			}
-			if (connection != null) {
-				connection.close();
-			}
-		}
-		return count > 0;
-	}
+    public List<Subject> filter(School school) throws Exception {
+ 
+        List<Subject> list = new ArrayList<>();
+ 
+        Connection con = getConnection();
+ 
+        String sql =
+ 
+            "SELECT * FROM subject WHERE school_cd = ?";
+ 
+        PreparedStatement st = con.prepareStatement(sql);
+ 
+        st.setString(1, school.getCd());
+ 
+        ResultSet rs = st.executeQuery();
+ 
+        while (rs.next()) {
+ 
+            Subject subject = new Subject();
+ 
+            subject.setCd(rs.getString("cd"));
+ 
+            subject.setName(rs.getString("name"));
+ 
+            subject.setSchool(school);
+ 
+            list.add(subject);
+ 
+        }
+ 
+        st.close();
+ 
+        con.close();
+ 
+        return list;
+ 
+    }
+ 
+ 
+    public boolean save(Subject subject) throws Exception {
+ 
+        Connection con = getConnection();
+ 
+        String sql =
+ 
+            "INSERT INTO subject(cd, name, school_cd) VALUES(?, ?, ?)";
+ 
+        PreparedStatement st = con.prepareStatement(sql);
+ 
+        st.setString(1, subject.getCd());
+ 
+        st.setString(2, subject.getName());
+ 
+        st.setString(3, subject.getSchool().getCd());
+ 
+        int line = st.executeUpdate();
+ 
+        st.close();
+ 
+        con.close();
+ 
+        return line > 0;
+    }
+ 
+ 
+    public boolean delete(Subject subject) throws Exception {
+ 
+        Connection con = getConnection();
+ 
+        String sql =
+ 
+            "DELETE FROM subject WHERE cd = ?";
+ 
+        PreparedStatement st = con.prepareStatement(sql);
+ 
+        st.setString(1, subject.getCd());
+ 
+        int line = st.executeUpdate();
+ 
+        st.close();
+ 
+        con.close();
+ 
+        return line > 0;
+    }
 }
+ 
