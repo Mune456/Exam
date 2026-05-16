@@ -3,106 +3,96 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-
-import javax.security.auth.Subject;
+import java.util.Map;
 
 import bean.School;
-//import bean.Subject;
+import bean.Subject;
 import bean.TestListSubject;
 
 public class TestListSubjectDao extends Dao {
-	
-	private String baseSql="";
-	
-	private List<TestListSubject> postFilter(ResultSet rSet){
-		
-		List<TestListSubject> list = new ArrayList<>();
-		
-		try {
-			while (rSet.next()) {
-				TestListSubject testListSubject = new TestListSubject();
-				
-				testListSubject.setEntYear(rSet.getInt("ent_year"));
-				testListSubject.setStudentNo(rSet.getString("student_no"));
-				testListSubject.setStudentName(rSet.getString("student_name"));
-				testListSubject.setClassNum(rSet.getString("class_num"));
-				testListSubject.setPoints(new HashMap<>());
-				
-				// リストに学生情報を追加
-				list.add(testListSubject);
-			}
-		}catch(SQLException | NullPointerException e) {
-			e.printStackTrace();
-		}
-		
-		return list;
-	}
-	
-	
-	
-	public List<TestListSubject> filter(int entYear, String classNum, Subject subject, School school) throws Exception{
 
-		// リストを初期化
-		List<TestListSubject> list = new ArrayList<>();
-		// データベースへのコネクションを確立
-		Connection connection = getConnection();
-		// プリペアードステートメント
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-			
-		baseSql = "" ;
-				
-		try {
-			
-			baseSql += "select " +
-					"student.ent_year, " +
-					"student.no as student_no, " +
-					"student.name as student_name, " +
-					"student.class_num " +
-					"from student " +
-					"where student.school_cd = ? " +
-					"and student.ent_year = ? " +
-					"and student.class_num = ? ";
-			
-			// プリペアードステートメントにSQL文をセット
-			statement = connection
-					.prepareStatement(baseSql);
-			// プリペアードステートメントに学校コードをバインド
-			statement.setString(1, school.getCd());
-			statement.setInt(2, entYear);
-			statement.setString(3, classNum);
-			
-			// プリペアードステートメントを実行
-			resultSet = statement.executeQuery();
-			list = postFilter(resultSet);
-				// リザルトセットを全件走査
-			} catch (Exception e) {
-			throw e;
-		} finally {
-			// プリペアードステートメントを閉じる
-			if (statement != null) {
-				try {
-					statement.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-			// コネクションを閉じる
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-		}
+    public List<TestListSubject> filter(
+            int entYear,
+            String classNum,
+            Subject subject,
+            School school) throws Exception {
 
-		return list;
-	}
-	
+        List<TestListSubject> list = new ArrayList<>();
+
+        Connection con = getConnection();
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+
+            String sql =
+                "select student.ent_year, student.no as student_no, student.name as student_name, student.class_num, " +
+                "test.no as test_no, test.point " +
+                "from student " +
+                "left join test " +
+                "on student.no = test.student_no " +
+                "and test.subject_cd = ? " +
+                "and test.school_cd = ? " +
+                "where student.school_cd = ? " +
+                "and student.ent_year = ? " +
+                "and student.class_num = ? " +
+                "order by student.no, test.no";
+
+            st = con.prepareStatement(sql);
+
+            // 点数テーブル用
+            st.setString(1, subject.getCd());
+            st.setString(2, school.getCd());
+
+            // 学生テーブル用
+            st.setString(3, school.getCd());
+            st.setInt(4, entYear);
+            st.setString(5, classNum);
+
+            rs = st.executeQuery();
+
+            // 学生ごとにまとめる
+            Map<String, TestListSubject> map = new LinkedHashMap<>();
+
+            while (rs.next()) {
+
+                String studentNo = rs.getString("student_no");
+
+                TestListSubject t = map.get(studentNo);
+
+                if (t == null) {
+                    t = new TestListSubject();
+
+                    t.setEntYear(rs.getInt("ent_year"));
+                    t.setStudentNo(studentNo);
+                    t.setStudentName(rs.getString("student_name"));
+                    t.setClassNum(rs.getString("class_num"));
+
+                    t.setPoints(new HashMap<>());
+
+                    map.put(studentNo, t);
+                }
+
+                // 点数セット
+                int testNo = rs.getInt("test_no");
+                int point = rs.getInt("point");
+
+                if (testNo != 0) {
+                    t.getPoints().put(testNo, point);
+                }
+            }
+
+            list = new ArrayList<>(map.values());
+
+        } finally {
+            if (st != null) st.close();
+            if (con != null) con.close();
+        }
+
+        return list;
+    }
 }
-

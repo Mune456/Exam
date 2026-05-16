@@ -8,13 +8,15 @@
   </c:param>
 
   <c:param name="content">
-	<section class="me-4">
-	<!-- タイトル -->
-		<h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">成績一覧（学生）</h2>
 
-	<!-- 学生番号表示 -->
+	<section class="me-4">
+  	<!-- タイトル -->
+		<h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">成績一覧（科目）</h2>
+	<!-- 条件表示 -->
 		<div class="mx-3 mb-3">
-			<strong>学生番号：</strong> 氏名：${student.name}（${student.no})
+			入学年度：${entYear}
+			クラス：${classNum}
+			科目：${subject.name}
 		</div>
 
 	<!-- データなし -->
@@ -25,28 +27,33 @@
 	<!-- テーブル -->
 		<c:if test="${not empty test_list}">
 			<table class="table table-bordered mx-3">
+		<!-- ヘッダー -->
 			<thead class="table-light">
-				<tr>	
-					<th>科目名</th>
-					<th>科目コード</th>
-					<th>回数</th>
-					<th>点数</th>
+				<tr>
+					<th>入学年度</th>
+					<th>クラス</th>
+					<th>学生番号</th>
+					<th>氏名</th>
+					<th>1回</th>
+					<th>2回</th>
 				</tr>
 			</thead>
-
+		<!-- データ -->
 			<tbody>
 				<c:forEach var="t" items="${test_list}">
 				<tr>
-					<td>${t.subjectName}</td>
-					<td>${t.subjectCd}</td>
-					<td>${t.num}</td>
-					<td>${t.point}</td>
+					<td>${t.entYear}</td>
+					<td>${t.classNum}</td>
+					<td>${t.studentNo}</td>
+					<td>${t.studentName}</td>
+				<!-- 点数 -->
+					<td><c:out value="${t.points[1]}" default="-" /></td>
+					<td><c:out value="${t.points[2]}" default="-" /></td>
 				</tr>
 				</c:forEach>
 			</tbody>
 			</table>
-		</c:if>
-
+  		</c:if>
 	</section>
   </c:param>
 </c:import>

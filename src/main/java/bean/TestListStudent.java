@@ -2,7 +2,7 @@ package bean;
 
 import java.io.Serializable;
 
-public class TestListStudent extends School implements Serializable {
+public class TestListStudent implements Serializable {
 	
 	private String subjectName;
 	private String subjectCd;

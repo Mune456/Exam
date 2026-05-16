@@ -1,61 +1,68 @@
 package scoremanager.main;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import bean.School;
 import bean.Student;
 import bean.Teacher;
 import bean.TestListStudent;
+import dao.StudentDao;
 import dao.TestListStudentDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tool.Action;
 
 public class TestListStudentExecuteAction extends Action {
-	
-	@Override
-	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
-	    // セッション取得
-	    Teacher teacher = (Teacher) req.getSession().getAttribute("user");
-	    if (teacher == null) {
-	        req.getRequestDispatcher("/test_list.jsp").forward(req, res);
-	        return;
-	    }
+    @Override
+    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
-	    School school = teacher.getSchool();
+        // セッション取得
+        Teacher teacher = (Teacher) req.getSession().getAttribute("user");
+        School school = teacher.getSchool();
 
-	    // 検索条件取得
-	    String entYearStr = req.getParameter("f1");
-	    String classNum = req.getParameter("f2");
-	    String subjectCd = req.getParameter("f3");
-	    String countStr = req.getParameter("f4");
+        // パラメータ取得
+        String studentNo = req.getParameter("student_no");
 
-	    int entYear = 0;
-	    int count = 0;
+        Map<String, String> errors = new HashMap<>();
 
-	    if (entYearStr != null && !entYearStr.equals("0")) {
-	        entYear = Integer.parseInt(entYearStr);
-	    }
-	    if (countStr != null && !countStr.equals("0")) {
-	        count = Integer.parseInt(countStr);
-	    }
+        // 入力チェック
+        if (studentNo == null || studentNo.isEmpty()) {
+            errors.put("student_no", "学生番号を入力してください");
 
-	    // DAO呼び出し
-	    TestListStudentDao dao = new TestListStudentDao();
-	    Student student = new Student();
-	    student.setSchool(school);
-	    String studentNo = req.getParameter("studentNo");
-	    student.setNo(studentNo);
-	    List<TestListStudent> list = dao.filter(student);
+            req.setAttribute("errors", errors);
+            req.getRequestDispatcher("test_list.jsp").forward(req, res);
+            return;
+        }
 
-	    // JSP に渡す
-	    req.setAttribute("list", list);
-	    req.setAttribute("entYear", entYear);
-	    req.setAttribute("classNum", classNum);
-	    req.setAttribute("subjectCd", subjectCd);
-	    req.setAttribute("count", count);
+        // Student生成
+        StudentDao studentDao = new StudentDao();
+        Student student = studentDao.get(studentNo);
+        student.setSchool(school);
+        
+        // DAO
+        TestListStudentDao dao = new TestListStudentDao();
 
-	    req.getRequestDispatcher("test_list_student.jsp").forward(req, res);
-	}
+        List<TestListStudent> testList = dao.filter(student);
+
+        // データがない場合
+        if (testList.isEmpty()) {
+            errors.put("no_data", "成績情報が存在しませんでした");
+
+            req.setAttribute("errors", errors);
+            req.setAttribute("student", student);
+
+            req.getRequestDispatcher("test_list_student.jsp").forward(req, res);
+            return;
+        }
+
+        // JSPへ渡す
+        req.setAttribute("test_list", testList);
+        req.setAttribute("student", student);
+
+        // フォワード
+        req.getRequestDispatcher("test_list_student.jsp").forward(req, res);
+    }
 }

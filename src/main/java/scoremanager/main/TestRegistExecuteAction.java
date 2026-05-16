@@ -141,7 +141,7 @@ public class TestRegistExecuteAction extends Action {
             testDao.save(testList);
         }
 
-        // 完了画面
+        // フォワード
         req.getRequestDispatcher("test_regist_done.jsp").forward(req, res);
     }
 

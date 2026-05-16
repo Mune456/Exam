@@ -168,7 +168,6 @@ public class TestDao extends Dao {
     	PreparedStatement statement = null;
         int count = 0;
         try {
-            // UPDATE
             statement = connection.prepareStatement(
                "update test set point = ? where student_no = ? and subject_cd = ? and no = ? and school_cd = ?"
             );

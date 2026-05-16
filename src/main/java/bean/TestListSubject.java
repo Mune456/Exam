@@ -3,7 +3,7 @@ package bean;
 import java.io.Serializable;
 import java.util.Map;
 
-public class TestListSubject extends School implements Serializable {
+public class TestListSubject implements Serializable {
 	
 	private int entYear;
 	private String studentNo;
