@@ -10,10 +10,10 @@
 	<c:param name="scripts"></c:param>
 
 	<c:param name="content">
-		<section class="me=4">
+		<section class="me-4">
 			<h2 class="h3 mb-3 fw-norma bg-secondary bg-opacity-10 py-2 px-4">成績管理</h2>
 			
-				<form method="get" action="TestListStudentExecute.action">
+				<form method="get" action="TestRegist.action">
 				
 					<div class="row border mx-3 mb-3 py-2 align-items-center rounded" id="filter">
 						<div class="col-2">
@@ -59,10 +59,54 @@
 						<div class="col-2 text-center">
 							<button class="btn btn-secondary" id="filter-button">検索</button>
 						</div>
-						<div class="mt-2 text-warning">${errors.entYear} ${errors.classNum} ${errors.no}</div>
+						<div class="mt-2 text-warning">${errors.entYear} ${errors.classNum} ${errors.subject} ${errors.no}</div>
 					</div>
+					
+					<c:if test="${not empty student_list}">
+					<h5 class="mx-3">
+					  科目：${subject.name}（${no}回）
+					</h5>
+			</form>
+					
+			<form method="post" action="TestRegistExecute.action">
+				<table class="table table-bordered mx-3">
+					<thead>
+					<tr>
+						<th>入学年度</th>
+						<th>クラス</th>
+						<th>学生番号</th>
+						<th>氏名</th>
+						<th>点数</th>
+					</tr>
+					</thead>
+					<tbody>
+						<c:forEach var="s" items="${student_list}">
+						<tr>
+							<td>${s.entYear}</td>
+							<td>${s.classNum}</td>
+							<td>${s.no}</td>
+							<td>${s.name}</td>
+							<td>
+								<input type="text"
+									name="point_${s.no}"
+									class="form-control">
+							</td>
+						</tr>
+						</c:forEach>
+					</tbody>
+				</table>
+				<!-- hidden：検索条件を保持 -->
+				<input type="hidden" name="entYear" value="${param.entYear}">
+				<input type="hidden" name="classNum" value="${param.classNum}">
+				<input type="hidden" name="subject" value="${subjectCd}">
+				<input type="hidden" name="no" value="${no}">
+					
+				<div class="mx-3">
+					<button class="btn btn-success">登録して終了</button>
+				</div>
 				</form>
-
+				</c:if>
+				
 		</section>
 	</c:param>
 </c:import>

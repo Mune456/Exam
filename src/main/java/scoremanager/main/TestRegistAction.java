@@ -6,9 +6,11 @@ import java.util.List;
 
 import bean.School;
 import bean.Student;
+import bean.Subject;
 import bean.Teacher;
 import dao.ClassNumDao;
 import dao.StudentDao;
+import dao.SubjectDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -34,35 +36,50 @@ public class TestRegistAction extends Action {
         	entYearSet.add(i);
         }
         
-        //クラス科目
+        //Dao
         ClassNumDao classNumDao = new ClassNumDao();
-//        SubjectDao subjectDao = new SubjectDao();
+        SubjectDao subjectDao = new SubjectDao();
         StudentDao studentDao = new StudentDao();
         
         List<String> classNumSet = classNumDao.filter(school);
-//        List<Subject> subjectList = subjectDao.filter(school);
+        List<Subject> subjectList = subjectDao.filter(school);
         
         
         //リクエストパラメーターの取得
         String entYearStr = req.getParameter("entYear");
         String classNum = req.getParameter("classNum");
-//        String subjectCd = req.getParameter("subject");
+        String subjectCd = req.getParameter("subject");
         String noStr = req.getParameter("no");
         
-        List<Student> studentlist = null;
-        
+        List<Student> studentlist = new ArrayList<>();
+    	Subject selectSubject = null;
+
         //学生一覧取得
-        if(entYearStr != null && classNum != null && !entYearStr.isEmpty() && !classNum.isEmpty()) {
+        if(entYearStr != null && classNum != null 
+        		&& !entYearStr.isEmpty() && !classNum.isEmpty()) {
         	int entYear = Integer.parseInt(entYearStr);
         	studentlist = studentDao.filter(school, entYear, classNum, false);
+        }
+        
+        
+        if (subjectCd != null && !subjectCd.isEmpty()) {
+        	for (Subject s : subjectList) {
+        		if (s.getCd().equals(subjectCd)) {
+                   selectSubject = s;
+                    break;
+               }
+            }
         }
         
         // JSPへ渡す
         req.setAttribute("ent_year_set", entYearSet);
         req.setAttribute("class_num_set", classNumSet);
-//        req.setAttribute("subject_list", subjectList);
+        req.setAttribute("subject_list", subjectList);
         req.setAttribute("student_list", studentlist);
         req.setAttribute("no", noStr);
+        req.setAttribute("subjectCd", subjectCd);
+        req.setAttribute("subject", selectSubject);
+
 
 
         List<Integer> countList = new ArrayList<>();

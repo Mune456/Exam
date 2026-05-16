@@ -7,10 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.security.auth.Subject;
-
 import bean.School;
 import bean.Student;
+import bean.Subject;
 import bean.Test;
 
 public class TestDao extends Dao {
@@ -27,7 +26,7 @@ public class TestDao extends Dao {
         try {
             statement = connection.prepareStatement(baseSql);
             statement.setString(1, student.getNo());
-//            statement.setString(2, subject.getCd());
+            statement.setString(2, subject.getCd());
             statement.setString(3, student.getSchool().getCd());            
             statement.setInt(4, no);
             rSet = statement.executeQuery();
@@ -73,11 +72,11 @@ public class TestDao extends Dao {
             	student.setNo(rSet.getString("student_no"));
                 
                 //Subject作成
-//            	Subject subject = new Subject();
-//            	subject.setCd(rSet.getString("subject_cd"));
+            	Subject subject = new Subject();
+            	subject.setCd(rSet.getString("subject_cd"));
             	
                 test.setStudent(student);
-//                test.setSubject(subject);
+                test.setSubject(subject);
                 test.setNo(rSet.getInt("no"));
                 test.setPoint(rSet.getInt("point"));
                 test.setSchool(school);
@@ -107,7 +106,7 @@ public class TestDao extends Dao {
         	statement = connection.prepareStatement(sql);
         	statement.setInt(1, entYear);
         	statement.setString(2, classNum);
-//        	statement.setString(3, subject.getCd());
+        	statement.setString(3, subject.getCd());
         	statement.setInt(4, num);
         	statement.setString(5, school.getCd());
 
@@ -168,26 +167,42 @@ public class TestDao extends Dao {
     	
     	PreparedStatement statement = null;
         int count = 0;
-
         try {
-        	statement = connection.prepareStatement("update test set point = ? where student_no = ? and subject_cd = ? and no = ? and school_cd = ?");
-        	
-        	statement.setInt(1, test.getPoint());
-		    statement.setString(2, test.getStudent().getNo());
-//		    statement.setString(3, test.getSubject().getCd();
-		    statement.setInt(4, test.getNo());
-		    statement.setString(5, test.getSchool().getCd());
-		    count = statement.executeUpdate();
-        }finally {
-        	if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException sqle) {
-                    throw sqle;
-                }
+            // UPDATE
+            statement = connection.prepareStatement(
+               "update test set point = ? where student_no = ? and subject_cd = ? and no = ? and school_cd = ?"
+            );
+
+            statement.setInt(1, test.getPoint());
+            statement.setString(2, test.getStudent().getNo());
+            statement.setString(3, test.getSubject().getCd());
+            statement.setInt(4, test.getNo());
+            statement.setString(5, test.getSchool().getCd());
+            
+            count = statement.executeUpdate();
+            
+            statement.close();
+            
+            if (count == 0) {
+                statement = connection.prepareStatement(
+                    "insert into test(student_no, subject_cd, school_cd, no, point, class_num) values (?, ?, ?, ?, ?, ?)"
+                );
+                
+                statement.setString(1, test.getStudent().getNo());
+                statement.setString(2, test.getSubject().getCd());
+                statement.setString(3, test.getSchool().getCd());
+                statement.setInt(4, test.getNo());
+                statement.setInt(5, test.getPoint());
+                statement.setString(6, test.getStudent().getClassNum());
+                
+                count = statement.executeUpdate();
+            }
+        } finally {
+            if (statement != null) {
+                statement.close();
             }
         }
         return count > 0;
     }
+
 }
-    
