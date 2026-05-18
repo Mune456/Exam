@@ -28,7 +28,6 @@ public class TestListSubjectDao extends Dao {
         ResultSet rs = null;
 
         try {
-
             String sql =
                 "select student.ent_year, student.no as student_no, student.name as student_name, student.class_num, " +
                 "test.no as test_no, test.point " +
@@ -36,7 +35,7 @@ public class TestListSubjectDao extends Dao {
                 "left join test " +
                 "on student.no = test.student_no " +
                 "and test.subject_cd = ? " +
-                "and test.school_cd = ? " +
+                "and test.class_num = student.class_num " +
                 "where student.school_cd = ? " +
                 "and student.ent_year = ? " +
                 "and student.class_num = ? " +
@@ -46,19 +45,25 @@ public class TestListSubjectDao extends Dao {
 
             // 点数テーブル用
             st.setString(1, subject.getCd());
-            st.setString(2, school.getCd());
 
             // 学生テーブル用
-            st.setString(3, school.getCd());
-            st.setInt(4, entYear);
-            st.setString(5, classNum);
+            st.setString(2, school.getCd());
+            st.setInt(3, entYear);
+            st.setString(4, classNum);
 
             rs = st.executeQuery();
+            System.out.println("====== SQL 結果 ======");
 
-            // 学生ごとにまとめる
             Map<String, TestListSubject> map = new LinkedHashMap<>();
 
             while (rs.next()) {
+
+                // ✅ ログはここに入れる（1つのwhile内）
+                System.out.println(
+                    "student_no=" + rs.getString("student_no")
+                    + ", test_no=" + rs.getObject("test_no")
+                    + ", point=" + rs.getObject("point")
+                );
 
                 String studentNo = rs.getString("student_no");
 
@@ -66,26 +71,21 @@ public class TestListSubjectDao extends Dao {
 
                 if (t == null) {
                     t = new TestListSubject();
-
                     t.setEntYear(rs.getInt("ent_year"));
                     t.setStudentNo(studentNo);
                     t.setStudentName(rs.getString("student_name"));
                     t.setClassNum(rs.getString("class_num"));
-
                     t.setPoints(new HashMap<>());
-
                     map.put(studentNo, t);
                 }
 
-                // 点数セット
-                int testNo = rs.getInt("test_no");
-                int point = rs.getInt("point");
+                Integer testObject = (Integer) rs.getObject("test_no");
+                Integer pointObject = (Integer) rs.getObject("point");
 
-                if (testNo != 0) {
-                    t.getPoints().put(testNo, point);
+                if (testObject != null) {
+                    t.getPoints().put(testObject, pointObject);
                 }
             }
-
             list = new ArrayList<>(map.values());
 
         } finally {

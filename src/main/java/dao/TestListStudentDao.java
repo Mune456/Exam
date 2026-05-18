@@ -14,7 +14,7 @@ public class TestListStudentDao extends Dao {
     private String baseSql = "select test.subject_cd, subject.name as subject_name, test.no, test.point " +
             "from test " +
             "join subject on test.subject_cd = subject.cd " +
-            "where test.student_no = ? and test.school_cd = ?";
+            "where test.student_no = ?";
 
     private List<TestListStudent> postFilter(ResultSet rSet) throws Exception {
 
