@@ -23,7 +23,7 @@ public class TestDao extends Dao {
         PreparedStatement statement = null;
 
         try {
-            String sql = baseSql + " and student_no = ? and subject_cd = ? and no = ?";
+            String sql = baseSql + " and trim(student_no) = ? and subject_cd = ? and no = ?";
             statement = connection.prepareStatement(sql);
             statement.setString(1, school.getCd());
             statement.setString(2, student.getNo());
@@ -184,7 +184,7 @@ public class TestDao extends Dao {
         PreparedStatement statement = null;
 
         try {
-            String sql = baseSql + " and student_no = ? order by subject_cd, no";
+            String sql = baseSql + " and trim(student_no) = ? order by subject_cd, no";
 
             statement = connection.prepareStatement(sql);
             statement.setString(1, school.getCd());
@@ -208,12 +208,7 @@ public class TestDao extends Dao {
 
         return list;
     }
-    public List<Test> filter(
-    		String entYear,
-    		String classNum,
-    		String subjectCd,
-    		School school
-    ) throws Exception {
+    public List<Test> filter(String entYear,String classNum,String subjectCd,School school) throws Exception {
 
     	List<Test> list = new ArrayList<>();
 
@@ -226,7 +221,7 @@ public class TestDao extends Dao {
     		String sql =
     			"select t.* " +
     			"from test t " +
-    			"join student s on t.student_no = s.no " +
+    			"join student s on trim(t.student_no) = trim(s.no) " +
     			"where s.ent_year = ? " +
     			"and s.class_num = ? " +
     			"and t.subject_cd = ? " +
