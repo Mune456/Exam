@@ -22,19 +22,15 @@ public class TestListStudentExecuteAction extends Action {
 		HttpSession session = req.getSession();
 		Teacher teacher = (Teacher) session.getAttribute("user");
 		
-		//ローカル変数の宣言 1
+		//ローカル変数の宣言
 		String student_no = "";
 		List<Test> testList = null;
 		TestDao testDao = new TestDao();
 		Map<String, String> errors = new HashMap<>();
 
-		//リクエストパラメータ―の取得 2
+		//リクエストパラメータ―の取得
 		student_no = req.getParameter("studentNo");
 		
-		//DBからデータ取得 3
-		//なし
-		
-		//ビジネスロジック 4
 		if (student_no == null || student_no.isEmpty()) {
 			errors.put("student", "学生番号を入力してください");
 			req.setAttribute("errors", errors);
@@ -47,10 +43,7 @@ public class TestListStudentExecuteAction extends Action {
 			}
 		}
 		
-		//DBへデータ保存 5
-		//なし
-
-		//レスポンス値をセット 6
+		//レスポンス値をセット 
 		if (testList != null && testList.size() > 0) {
 			req.setAttribute("studentName",
 				testList.get(0).getStudent().getName());
@@ -70,15 +63,9 @@ public class TestListStudentExecuteAction extends Action {
 
 		req.setAttribute("entYearSet", entYearSet);
 
-		req.setAttribute(
-			"classNumSet",
-			cNumDao.filter(teacher.getSchool())
-		);
+		req.setAttribute("classNumSet",cNumDao.filter(teacher.getSchool()));
 
-		req.setAttribute(
-			"subjectList",
-			sDao.filter(teacher.getSchool())
-		);
+		req.setAttribute("subjectList",sDao.filter(teacher.getSchool()));
 
 		//フォワード
 		req.getRequestDispatcher("/scoremanager/main/test_list.jsp").forward(req, res);
