@@ -47,8 +47,22 @@
 					<td>${t.studentNo}</td>
 					<td>${t.studentName}</td>
 				<!-- 点数 -->
-					<td><c:out value="${t.points[1]}" default="-" /></td>
-					<td><c:out value="${t.points[2]}" default="-" /></td>
+					<td>
+						<c:choose>
+						    <c:when test="${t.points.get(1) != null}">
+						      ${t.points.get(1)}
+						    </c:when>
+						    <c:otherwise>-</c:otherwise>
+						  </c:choose>
+					</td>
+					<td>
+						<c:choose>
+						    <c:when test="${t.points.get(1) != null}">
+						      ${t.points.get(1)}
+						    </c:when>
+						    <c:otherwise>-</c:otherwise>
+						  </c:choose>
+					</td>
 				</tr>
 				</c:forEach>
 			</tbody>

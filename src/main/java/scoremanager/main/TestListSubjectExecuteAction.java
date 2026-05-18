@@ -1,90 +1,95 @@
 package scoremanager.main;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import bean.School;
-import bean.Subject;
 import bean.Teacher;
-import bean.TestListSubject;
+import bean.Test;
 import dao.ClassNumDao;
 import dao.SubjectDao;
-import dao.TestListSubjectDao;
+import dao.TestDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class TestListSubjectExecuteAction extends Action {
 
-    @Override
-    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
+	@Override
+	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
-        // セッション
-        Teacher teacher = (Teacher) req.getSession().getAttribute("user");
-        School school = teacher.getSchool();
+		HttpSession session = req.getSession();
+		Teacher teacher = (Teacher) session.getAttribute("user");
 
-        // パラメータ
-        String entYearStr = req.getParameter("entYear");
-        String classNum = req.getParameter("classNum");
-        String subjectCd = req.getParameter("subject");
-        String noStr = req.getParameter("no");
+		// ローカル変数の宣言
+		String entYear = "";
+		String classNum = "";
+		String subjectCd = "";
 
-        Map<String, String> errors = new HashMap<>();
+		List<Test> testList = null;
 
-        // 入力チェック
-        if (entYearStr == null || entYearStr.isEmpty()) {
-            errors.put("entYear", "入学年度を選択してください");
-        }
-        if (classNum == null || classNum.isEmpty()) {
-            errors.put("classNum", "クラスを選択してください");
-        }
-        if (subjectCd == null || subjectCd.isEmpty()) {
-            errors.put("subject", "科目を選択してください");
-        }
+		TestDao testDao = new TestDao();
 
-        // エラー
-        if (!errors.isEmpty()) {
+		Map<String, String> errors = new HashMap<>();
 
-            ClassNumDao classNumDao = new ClassNumDao();
-            SubjectDao subjectDao = new SubjectDao();
+		// リクエストパラメータ取得
+		entYear = req.getParameter("entYear");
+		classNum = req.getParameter("classNum");
+		subjectCd = req.getParameter("subjectCd");
 
-            req.setAttribute("class_num_set", classNumDao.filter(school));
-            req.setAttribute("subject_list", subjectDao.filter(school));
+		// ビジネスロジック
+		if (entYear == null || entYear.isEmpty()
+			|| classNum == null || classNum.isEmpty()
+			|| subjectCd == null || subjectCd.isEmpty()) {
 
-            req.setAttribute("errors", errors);
+			errors.put("subject", "入学年度とクラスと科目を選択してください");
 
-            req.getRequestDispatcher("test_list.jsp").forward(req, res);
-            return;
-        }
+		} else {
 
-        int entYear = Integer.parseInt(entYearStr);
+			testList =
+				testDao.filter(
+					entYear,
+					classNum,
+					subjectCd,
+					teacher.getSchool()
+				);
 
-        // 科目取得
-        SubjectDao subjectDao = new SubjectDao();
-        Subject subject = subjectDao.get(subjectCd, school);
+			if (testList == null || testList.size() == 0) {
 
-        // DAO
-        TestListSubjectDao dao = new TestListSubjectDao();
+				errors.put("subject", "成績情報が存在しませんでした");
+			}
+		}
+		
+		ClassNumDao cNumDao = new ClassNumDao();
+		SubjectDao sDao = new SubjectDao();
 
-        List<TestListSubject> testList =
-                dao.filter(entYear, classNum, subject, school);
+		List<Integer> entYearSet = new ArrayList<>();
 
-        // データなし
-        if (testList.isEmpty()) {
-            errors.put("no_data", "成績情報が存在しませんでした");
-            req.setAttribute("errors", errors);
-        }
+		for (int i = 2020; i <= 2025; i++) {
+			entYearSet.add(i);
+		}
 
-        // JSPへ
-        req.setAttribute("test_list", testList);
-        req.setAttribute("subject", subject);
-        req.setAttribute("no", noStr);
-        req.setAttribute("entYear", entYearStr);
-        req.setAttribute("classNum", classNum);
-        req.setAttribute("subjectCd", subjectCd);
+		req.setAttribute("entYearSet", entYearSet);
 
-        // フォワード
-        req.getRequestDispatcher("test_list_subject.jsp").forward(req, res);
-    }
+		req.setAttribute(
+			"classNumSet",
+			cNumDao.filter(teacher.getSchool())
+		);
+
+		req.setAttribute(
+			"subjectList",
+			sDao.filter(teacher.getSchool())
+		);
+
+		// レスポンス値をセット
+		req.setAttribute("errors", errors);
+
+		req.setAttribute("testList", testList);
+
+		// JSPへフォワード
+		req.getRequestDispatcher("/scoremanager/main/test_list.jsp")
+			.forward(req, res);
+	}
 }

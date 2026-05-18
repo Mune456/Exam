@@ -14,194 +14,261 @@ import bean.Test;
 
 public class TestDao extends Dao {
 
-	private String baseSql = "select * from test where student_no = ? and subject_cd = ? and school_cd = ? and no = ?";
-	
-    public Test get(Student student,Subject subject, School school,int no) throws Exception {
-    	
-    	Test test= null;
+    private String baseSql = "select * from test where school_cd = ?";
+
+    /**
+     * getメソッド
+     * 指定された条件のテストを1件取得
+     */
+    public Test get(Student student, Subject subject, School school, int no) throws Exception {
+
+        Test test = null;
         Connection connection = getConnection();
         PreparedStatement statement = null;
-        ResultSet rSet = null;
 
         try {
-            statement = connection.prepareStatement(baseSql);
-            statement.setString(1, student.getNo());
-            statement.setString(2, subject.getCd());
-            statement.setString(3, student.getSchool().getCd());            
+            String sql = baseSql + " and student_no = ? and subject_cd = ? and no = ?";
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, school.getCd());
+            statement.setString(2, student.getNo());
+            statement.setString(3, subject.getCd());
             statement.setInt(4, no);
-            rSet = statement.executeQuery();
+
+            ResultSet rSet = statement.executeQuery();
 
             if (rSet.next()) {
-            	test = new Test();
-            	test.setStudent(student);
-            	test.setSubject(subject);
-                test.setSchool(student.getSchool());
+                test = new Test();
+                test.setStudent(student);
+                test.setSubject(subject);
+                test.setSchool(school);
                 test.setNo(rSet.getInt("no"));
                 test.setPoint(rSet.getInt("point"));
-            } 
+            }
+
         } catch (Exception e) {
             throw e;
         } finally {
             if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException sqle) {
-                    throw sqle;
-                }
+                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
             }
             if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqle) {
-                    throw sqle;
-                }
+                try { connection.close(); } catch (SQLException sqle) { throw sqle; }
             }
         }
+
         return test;
     }
-    
-    
-    private List<Test> postFilter(ResultSet rSet, School school) throws Exception {
-        
-    	List<Test> list = new ArrayList<>();
-        try {
-            while (rSet.next()) {
-            	Test test=new Test();
-            	// student作成
-            	Student student = new Student();
-            	student.setNo(rSet.getString("student_no"));
-                
-                //Subject作成
-            	Subject subject = new Subject();
-            	subject.setCd(rSet.getString("subject_cd"));
-            	
-                test.setStudent(student);
-                test.setSubject(subject);
-                test.setNo(rSet.getInt("no"));
-                test.setPoint(rSet.getInt("point"));
-                test.setSchool(school);
-                list.add(test);
-            }
-        } catch (SQLException | NullPointerException e) {
-            e.printStackTrace();
+
+    /**
+     * postFilterメソッド
+     * ResultSet から Test のリストを作成
+     */
+    public List<Test> postFilter(ResultSet rSet, School school) throws Exception {
+
+        List<Test> list = new ArrayList<>();
+
+        StudentDao sDao = new StudentDao();
+        SubjectDao subDao = new SubjectDao();
+
+        while (rSet.next()) {
+            Test test = new Test();
+            test.setSchool(school);
+            test.setNo(rSet.getInt("no"));
+            test.setPoint(rSet.getInt("point"));
+
+            test.setStudent(sDao.get(rSet.getString("student_no")));
+            test.setSubject(subDao.get(rSet.getString("subject_cd"),school));
+
+            list.add(test);
         }
 
         return list;
     }
-    
-    
-    public List<Test> filter(int entYear,String classNum, Subject subject, int num, School school) throws Exception{
 
-    	List<Test> list = new ArrayList<>();
-    	
-    	Connection connection = getConnection();
+    /**
+     * filterメソッド
+     * 条件に一致するテスト一覧を取得
+     */
+    public List<Test> filter(int year, String classNum, Subject subject, int num, School school) throws Exception {
+
+        List<Test> list = new ArrayList<>();
+        Connection connection = getConnection();
         PreparedStatement statement = null;
-        ResultSet rSet = null;
-        
+
         try {
-        	String sql =
-        			"select t.* from test t " +
-        			"join student s on t.student_no = s.no " +
-        			"where s.ent_year=? and s.class_num=? and t.subject_cd=? and t.no=? and t.school_cd=?";
-        	statement = connection.prepareStatement(sql);
-        	statement.setInt(1, entYear);
-        	statement.setString(2, classNum);
-        	statement.setString(3, subject.getCd());
-        	statement.setInt(4, num);
-        	statement.setString(5, school.getCd());
+            String sql = baseSql
+                    + " and year = ? and class_num = ? and subject_cd = ? and no = ? order by student_no";
 
-        	rSet = statement.executeQuery();
-        	list = postFilter(rSet,school);
-        	
-        }finally {
-        	if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException sqle) {
-                    throw sqle;
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqle) {
-                    throw sqle;
-                }
-            }
-        }
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, school.getCd());
+            statement.setInt(2, year);
+            statement.setString(3, classNum);
+            statement.setString(4, subject.getCd());
+            statement.setInt(5, num);
 
-        return list;
-        	
-        }
-    
-    
-    public boolean save(List<Test> list) throws Exception{
-    	
-    	Connection connection = getConnection();
-    	boolean result = false;
-    	
-        try {
+            ResultSet rSet = statement.executeQuery();
 
-        	for(Test test:list) {
-        		save(test, connection);
-        	}
-        	result = true;
-        	
+            list = postFilter(rSet, school);
+
         } catch (Exception e) {
             throw e;
         } finally {
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
+            }
             if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqle) {
-                    throw sqle;
-                }
+                try { connection.close(); } catch (SQLException sqle) { throw sqle; }
             }
         }
 
-        return result;
+        return list;
     }
-    
-    
-    private boolean save(Test test, Connection connection) throws Exception {
-    	
-    	PreparedStatement statement = null;
-        int count = 0;
-        try {
-            statement = connection.prepareStatement(
-               "update test set point = ? where student_no = ? and subject_cd = ? and no = ? and school_cd = ?"
-            );
 
-            statement.setInt(1, test.getPoint());
+    /**
+     * saveメソッド（複数登録）
+     */
+    public boolean save(List<Test> list) throws Exception {
+
+        Connection connection = getConnection();
+        PreparedStatement statement = null;
+        int count = 0;
+
+        try {
+            String sql = "insert into test(school_cd, student_no, subject_cd, no, point) values(?, ?, ?, ?, ?)";
+            statement = connection.prepareStatement(sql);
+
+            for (Test test : list) {
+                statement.setString(1, test.getSchool().getCd());
+                statement.setString(2, test.getStudent().getNo());
+                statement.setString(3, test.getSubject().getCd());
+                statement.setInt(4, test.getNo());
+                statement.setInt(5, test.getPoint());
+                count += statement.executeUpdate();
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
+            }
+            if (connection != null) {
+                try { connection.close(); } catch (SQLException sqle) { throw sqle; }
+            }
+        }
+
+        return count == list.size();
+    }
+
+    /**
+     * saveメソッド（1件登録・外部コネクション使用）
+     */
+    public boolean save(Test test, Connection connection) throws Exception {
+
+        PreparedStatement statement = null;
+        int count = 0;
+
+        try {
+            String sql = "insert into test(school_cd, student_no, subject_cd, no, point) values(?, ?, ?, ?, ?)";
+            statement = connection.prepareStatement(sql);
+
+            statement.setString(1, test.getSchool().getCd());
             statement.setString(2, test.getStudent().getNo());
             statement.setString(3, test.getSubject().getCd());
             statement.setInt(4, test.getNo());
-            statement.setString(5, test.getSchool().getCd());
-            
+            statement.setInt(5, test.getPoint());
+
             count = statement.executeUpdate();
-            
-            statement.close();
-            
-            if (count == 0) {
-                statement = connection.prepareStatement(
-                    "insert into test(student_no, subject_cd, school_cd, no, point, class_num) values (?, ?, ?, ?, ?, ?)"
-                );
-                
-                statement.setString(1, test.getStudent().getNo());
-                statement.setString(2, test.getSubject().getCd());
-                statement.setString(3, test.getSchool().getCd());
-                statement.setInt(4, test.getNo());
-                statement.setInt(5, test.getPoint());
-                statement.setString(6, test.getStudent().getClassNum());
-                
-                count = statement.executeUpdate();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
             }
+        }
+
+        return count > 0;
+    }
+    public List<Test> search(String studentNo, School school) throws Exception {
+
+        List<Test> list = new ArrayList<>();
+
+        Connection connection = getConnection();
+        PreparedStatement statement = null;
+
+        try {
+            String sql = baseSql + " and student_no = ? order by subject_cd, no";
+
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, school.getCd());
+            statement.setString(2, studentNo);
+
+            ResultSet rSet = statement.executeQuery();
+
+            list = postFilter(rSet, school);
+
+        } catch (Exception e) {
+            throw e;
+
         } finally {
             if (statement != null) {
                 statement.close();
             }
+            if (connection != null) {
+                connection.close();
+            }
         }
-        return count > 0;
-    }
 
+        return list;
+    }
+    public List<Test> filter(
+    		String entYear,
+    		String classNum,
+    		String subjectCd,
+    		School school
+    ) throws Exception {
+
+    	List<Test> list = new ArrayList<>();
+
+    	Connection connection = getConnection();
+
+    	PreparedStatement statement = null;
+
+    	try {
+
+    		String sql =
+    			"select t.* " +
+    			"from test t " +
+    			"join student s on t.student_no = s.no " +
+    			"where s.ent_year = ? " +
+    			"and s.class_num = ? " +
+    			"and t.subject_cd = ? " +
+    			"and t.school_cd = ? " +
+    			"order by t.student_no";
+
+    		statement = connection.prepareStatement(sql);
+
+    		statement.setInt(1, Integer.parseInt(entYear));
+    		statement.setString(2, classNum);
+    		statement.setString(3, subjectCd);
+    		statement.setString(4, school.getCd());
+
+    		ResultSet rSet = statement.executeQuery();
+
+    		list = postFilter(rSet, school);
+
+    	} finally {
+
+    		if (statement != null) {
+    			statement.close();
+    		}
+
+    		if (connection != null) {
+    			connection.close();
+    		}
+    	}
+
+    	return list;
+    }
 }

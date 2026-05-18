@@ -1,68 +1,86 @@
 package scoremanager.main;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import bean.School;
-import bean.Student;
 import bean.Teacher;
-import bean.TestListStudent;
-import dao.StudentDao;
-import dao.TestListStudentDao;
+import bean.Test;
+import dao.ClassNumDao;
+import dao.SubjectDao;
+import dao.TestDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class TestListStudentExecuteAction extends Action {
 
-    @Override
-    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
+	@Override
+	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
+		HttpSession session = req.getSession();
+		Teacher teacher = (Teacher) session.getAttribute("user");
+		
+		//ローカル変数の宣言 1
+		String student_no = "";
+		List<Test> testList = null;
+		TestDao testDao = new TestDao();
+		Map<String, String> errors = new HashMap<>();
 
-        // セッション取得
-        Teacher teacher = (Teacher) req.getSession().getAttribute("user");
-        School school = teacher.getSchool();
+		//リクエストパラメータ―の取得 2
+		student_no = req.getParameter("studentNo");
+		
+		//DBからデータ取得 3
+		//なし
+		
+		//ビジネスロジック 4
+		if (student_no == null || student_no.isEmpty()) {
+			errors.put("student", "学生番号を入力してください");
+			req.setAttribute("errors", errors);
+		} else {
+			testList = testDao.search(student_no, teacher.getSchool());
 
-        // パラメータ取得
-        String studentNo = req.getParameter("student_no");
+			if (testList == null || testList.size() == 0) {
+				errors.put("student", "成績情報が存在しませんでした");
+				req.setAttribute("errors", errors);
+			}
+		}
+		
+		//DBへデータ保存 5
+		//なし
 
-        Map<String, String> errors = new HashMap<>();
+		//レスポンス値をセット 6
+		if (testList != null && testList.size() > 0) {
+			req.setAttribute("studentName",
+				testList.get(0).getStudent().getName());
+		}
+		
+		req.setAttribute("studentNo", student_no);
+		req.setAttribute("testList", testList);
+		
+		ClassNumDao cNumDao = new ClassNumDao();
+		SubjectDao sDao = new SubjectDao();
 
-        // 入力チェック
-        if (studentNo == null || studentNo.isEmpty()) {
-            errors.put("student_no", "学生番号を入力してください");
+		List<Integer> entYearSet = new ArrayList<>();
 
-            req.setAttribute("errors", errors);
-            req.getRequestDispatcher("test_list.jsp").forward(req, res);
-            return;
-        }
+		for (int i = 2020; i <= 2025; i++) {
+			entYearSet.add(i);
+		}
 
-        // Student生成
-        StudentDao studentDao = new StudentDao();
-        Student student = studentDao.get(studentNo);
-        student.setSchool(school);
-        
-        // DAO
-        TestListStudentDao dao = new TestListStudentDao();
+		req.setAttribute("entYearSet", entYearSet);
 
-        List<TestListStudent> testList = dao.filter(student);
+		req.setAttribute(
+			"classNumSet",
+			cNumDao.filter(teacher.getSchool())
+		);
 
-        // データがない場合
-        if (testList.isEmpty()) {
-            errors.put("no_data", "成績情報が存在しませんでした");
+		req.setAttribute(
+			"subjectList",
+			sDao.filter(teacher.getSchool())
+		);
 
-            req.setAttribute("errors", errors);
-            req.setAttribute("student", student);
-
-            req.getRequestDispatcher("test_list_student.jsp").forward(req, res);
-            return;
-        }
-
-        // JSPへ渡す
-        req.setAttribute("test_list", testList);
-        req.setAttribute("student", student);
-
-        // フォワード
-        req.getRequestDispatcher("test_list_student.jsp").forward(req, res);
-    }
+		//JSPへフォワード 7
+		req.getRequestDispatcher("/scoremanager/main/test_list.jsp").forward(req, res);
+	}
 }

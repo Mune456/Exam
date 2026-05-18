@@ -32,7 +32,7 @@
                 </a>
 
                 <!-- 成績参照 -->
-                <a href="TestListStudent.action">
+                <a href="TestList.action">
                     成績参照
                 </a>
 

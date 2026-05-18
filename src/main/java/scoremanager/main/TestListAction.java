@@ -1,6 +1,5 @@
 package scoremanager.main;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,45 +14,44 @@ import tool.Action;
 
 public class TestListAction extends Action {
 
-    @Override
-    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
+	@Override
+	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
-        // セッション
-        HttpSession session = req.getSession();
-        Teacher teacher = (Teacher) session.getAttribute("user");
+		HttpSession session = req.getSession();
 
-        // 学校
-        var school = teacher.getSchool();
+		Teacher teacher = (Teacher) session.getAttribute("user");
 
-        // 年度
-        int year = LocalDate.now().getYear();
-        List<Integer> entYearSet = new ArrayList<>();
+		// DAO
+		ClassNumDao classNumDao = new ClassNumDao();
+		SubjectDao subjectDao = new SubjectDao();
 
-        for (int i = year - 10; i <= year; i++) {
-            entYearSet.add(i);
-        }
+		// クラス一覧取得
+		List<String> class_Num =
+				classNumDao.filter(teacher.getSchool());
 
-        // DAO
-        ClassNumDao classNumDao = new ClassNumDao();
-        SubjectDao subjectDao = new SubjectDao();
+		// 科目一覧取得
+		List<Subject> subject =
+				subjectDao.filter(teacher.getSchool());
 
-        // クラス一覧
-        List<String> classNumSet = classNumDao.filter(school);
+		// 入学年度一覧作成
+		List<Integer> entYearSet = new ArrayList<>();
 
-        // 科目一覧
-        List<Subject> subjectList = subjectDao.filter(school);
-        List<Integer> countList = new ArrayList<>();
-        for (int i = 1; i <= 100; i++) {
-            countList.add(i);
-        }
+		for (int i = 2020; i <= 2025; i++) {
+			entYearSet.add(i);
+		}
 
-        // JSPへ渡す
-        req.setAttribute("ent_year_set", entYearSet);
-        req.setAttribute("class_num_set", classNumSet);
-        req.setAttribute("subject_list", subjectList);
-        req.setAttribute("count_list", countList);
+		// JSPへ値を渡す
+		req.setAttribute("searched", true);
 
-        // 空の状態で表示（最初は一覧なし）
-        req.getRequestDispatcher("test_list.jsp").forward(req, res);
-    }
+		req.setAttribute("classNumSet", class_Num);
+
+		req.setAttribute("subjectList", subject);
+
+		req.setAttribute("entYearSet", entYearSet);
+
+		// JSPへフォワード
+		req.getRequestDispatcher(
+				"/scoremanager/main/test_list.jsp")
+				.forward(req, res);
+	}
 }
