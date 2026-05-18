@@ -80,7 +80,7 @@ public class TestListStudentExecuteAction extends Action {
 			sDao.filter(teacher.getSchool())
 		);
 
-		//JSPへフォワード 7
+		//フォワード
 		req.getRequestDispatcher("/scoremanager/main/test_list.jsp").forward(req, res);
 	}
 }

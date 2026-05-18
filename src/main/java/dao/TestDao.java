@@ -16,10 +16,6 @@ public class TestDao extends Dao {
 
     private String baseSql = "select * from test where school_cd = ?";
 
-    /**
-     * getメソッド
-     * 指定された条件のテストを1件取得
-     */
     public Test get(Student student, Subject subject, School school, int no) throws Exception {
 
         Test test = null;
@@ -59,10 +55,6 @@ public class TestDao extends Dao {
         return test;
     }
 
-    /**
-     * postFilterメソッド
-     * ResultSet から Test のリストを作成
-     */
     public List<Test> postFilter(ResultSet rSet, School school) throws Exception {
 
         List<Test> list = new ArrayList<>();
@@ -85,10 +77,7 @@ public class TestDao extends Dao {
         return list;
     }
 
-    /**
-     * filterメソッド
-     * 条件に一致するテスト一覧を取得
-     */
+    
     public List<Test> filter(int year, String classNum, Subject subject, int num, School school) throws Exception {
 
         List<Test> list = new ArrayList<>();
@@ -124,68 +113,65 @@ public class TestDao extends Dao {
         return list;
     }
 
-    /**
-     * saveメソッド（複数登録）
-     */
     public boolean save(List<Test> list) throws Exception {
 
         Connection connection = getConnection();
-        PreparedStatement statement = null;
-        int count = 0;
+
+        boolean result = false;
 
         try {
-            String sql = "insert into test(school_cd, student_no, subject_cd, no, point) values(?, ?, ?, ?, ?)";
-            statement = connection.prepareStatement(sql);
 
             for (Test test : list) {
-                statement.setString(1, test.getSchool().getCd());
-                statement.setString(2, test.getStudent().getNo());
-                statement.setString(3, test.getSubject().getCd());
-                statement.setInt(4, test.getNo());
-                statement.setInt(5, test.getPoint());
-                count += statement.executeUpdate();
+                save(test, connection); // ← ここに集約
             }
 
-        } catch (Exception e) {
-            throw e;
+            result = true;
+
         } finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
-            }
-            if (connection != null) {
-                try { connection.close(); } catch (SQLException sqle) { throw sqle; }
-            }
+            if (connection != null) connection.close();
         }
 
-        return count == list.size();
+        return result;
     }
 
-    /**
-     * saveメソッド（1件登録・外部コネクション使用）
-     */
     public boolean save(Test test, Connection connection) throws Exception {
 
         PreparedStatement statement = null;
         int count = 0;
 
         try {
-            String sql = "insert into test(school_cd, student_no, subject_cd, no, point) values(?, ?, ?, ?, ?)";
-            statement = connection.prepareStatement(sql);
 
-            statement.setString(1, test.getSchool().getCd());
+            statement = connection.prepareStatement(
+                "update test set point = ? where student_no = ? and subject_cd = ? and no = ? and school_cd = ?"
+            );
+
+            statement.setInt(1, test.getPoint());
             statement.setString(2, test.getStudent().getNo());
             statement.setString(3, test.getSubject().getCd());
             statement.setInt(4, test.getNo());
-            statement.setInt(5, test.getPoint());
+            statement.setString(5, test.getSchool().getCd());
 
             count = statement.executeUpdate();
+            statement.close();
 
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
+            if (count == 0) {
+
+                statement = connection.prepareStatement(
+                    "insert into test(student_no, subject_cd, school_cd, no, point, class_num) values (?, ?, ?, ?, ?, ?)"
+                );
+
+                statement.setString(1, test.getStudent().getNo());
+                statement.setString(2, test.getSubject().getCd());
+                statement.setString(3, test.getSchool().getCd());
+                statement.setInt(4, test.getNo());
+                statement.setInt(5, test.getPoint());
+                statement.setString(6, test.getStudent().getClassNum());
+
+                count = statement.executeUpdate();
             }
+
+        } finally {
+            if (statement != null) statement.close();
         }
 
         return count > 0;

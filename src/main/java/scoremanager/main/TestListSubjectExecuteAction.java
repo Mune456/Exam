@@ -39,7 +39,6 @@ public class TestListSubjectExecuteAction extends Action {
 		classNum = req.getParameter("classNum");
 		subjectCd = req.getParameter("subjectCd");
 
-		// ビジネスロジック
 		if (entYear == null || entYear.isEmpty()
 			|| classNum == null || classNum.isEmpty()
 			|| subjectCd == null || subjectCd.isEmpty()) {
@@ -88,7 +87,7 @@ public class TestListSubjectExecuteAction extends Action {
 
 		req.setAttribute("testList", testList);
 
-		// JSPへフォワード
+		// フォワード
 		req.getRequestDispatcher("/scoremanager/main/test_list.jsp")
 			.forward(req, res);
 	}

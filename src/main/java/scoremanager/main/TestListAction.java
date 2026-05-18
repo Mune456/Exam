@@ -49,9 +49,7 @@ public class TestListAction extends Action {
 
 		req.setAttribute("entYearSet", entYearSet);
 
-		// JSPへフォワード
-		req.getRequestDispatcher(
-				"/scoremanager/main/test_list.jsp")
-				.forward(req, res);
+		// フォワード
+		req.getRequestDispatcher("/scoremanager/main/test_list.jsp").forward(req, res);
 	}
 }
