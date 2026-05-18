@@ -10,42 +10,31 @@
 	</c:param>
 
 	<c:param name="content">
-
 		<section class="me-4">
-
 			<c:choose>
-
 				<c:when test="${not empty testList}">
 					<h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
 						成績一覧（学生）
 					</h2>
 				</c:when>
-
 				<c:otherwise>
 					<h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
 						成績参照
 					</h2>
 				</c:otherwise>
-
 			</c:choose>
 
 			<div class="border rounded px-2 py-3">
-
 				<div class="row align-items-center mb-4">
-
 					<div class="col-2 fw-bold text-secondary">
 						科目情報
 					</div>
-
 					<div class="col-10">
-
 						<form action="TestListSubjectExecute.action" method="post">
-
 							<div class="row align-items-end">
-
+							
 								<div class="col-2">
 									<label class="form-label">入学年度</label>
-
 									<select class="form-select" name="entYear">
 										<option value="">--------</option>
 
@@ -54,13 +43,11 @@
 												${year}
 											</option>
 										</c:forEach>
-
 									</select>
 								</div>
 
 								<div class="col-2">
 									<label class="form-label">クラス</label>
-
 									<select class="form-select" name="classNum">
 										<option value="">--------</option>
 
@@ -69,13 +56,11 @@
 												${num}
 											</option>
 										</c:forEach>
-
 									</select>
 								</div>
 
 								<div class="col-3">
 									<label class="form-label">科目</label>
-
 									<select class="form-select" name="subjectCd">
 										<option value="">--------</option>
 
